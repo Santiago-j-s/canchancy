@@ -2,6 +2,7 @@
 
 import type {Metadata} from "next";
 
+import {GeistSans} from "geist/font/sans";
 import Link from "next/link";
 
 import "./globals.css";
@@ -13,7 +14,7 @@ export const metadata: Metadata = {
 
 export default async function RootLayout({children}: {children: React.ReactNode}) {
   return (
-    <html lang="en">
+    <html className={`${GeistSans.variable} dark`} lang="en">
       <body className="container m-auto grid min-h-screen grid-rows-[auto_1fr_auto] gap-8 px-4 font-sans antialiased">
         <header className="text-xl leading-[4rem] font-bold">
           <Link href="/">Fulboncy</Link>
