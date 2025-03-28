@@ -1,7 +1,27 @@
 import {NextResponse} from "next/server";
 
-import {verifyRequest} from "@/lib/discord";
+import {DiscordInteraction, verifyRequest} from "@/lib/discord";
 import {getCourtsData} from "@/lib/atc";
+
+function parseReservationBody(body: DiscordInteraction) {
+  const [court, date] = body.data?.options ?? [];
+
+  if (!court || !date) {
+    return {
+      error: "No se proporcionaron suficientes opciones. `court` y `date` son requeridos.",
+    } as const;
+  }
+
+  if (typeof court.value !== "string") {
+    return {error: "El valor de la opción de la cancha no es válido."} as const;
+  }
+
+  if (typeof date.value !== "string") {
+    return {error: "El valor de la opción de la fecha no es válido."} as const;
+  }
+
+  return {error: null, data: {court: court.value, date: date.value}} as const;
+}
 
 export async function POST(request: Request) {
   const body = await verifyRequest(request);
@@ -15,14 +35,20 @@ export async function POST(request: Request) {
   if (body.type === 2) {
     switch (body.data?.name) {
       case "reserva": {
-        const [court, date] = body.data.options!;
+        const {error, data} = parseReservationBody(body);
 
-        const fieldData = await getCourtsData(court.value as string, date.value as string);
+        if (error) {
+          return NextResponse.json({type: 4, data: {content: error}});
+        }
+
+        const {court, date} = data;
+
+        const fieldData = await getCourtsData(court, date);
 
         return NextResponse.json({
           type: 4,
           data: {
-            content: `Las canchas disponibles para **${fieldData.name}** el **${date.value}** son:\n${fieldData.courts.map((court) => `- **${court.name}**: ${court.slots.join(", ")}`).join("\n")}`,
+            content: `Las canchas disponibles para **${fieldData.name}** el **${date}** son:\n${fieldData.courts.map((court) => `- **${court.name}**: ${court.slots.join(", ")}`).join("\n")}`,
           },
         });
       }
