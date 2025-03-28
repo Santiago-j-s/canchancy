@@ -1,5 +1,7 @@
 import {format} from "@formkit/tempo";
 
+import {API_BASE_URL, TIMEZONE} from "./constants";
+
 type FieldAvailability = {
   id: string;
   permalink: string;
@@ -65,9 +67,9 @@ type FieldAvailability = {
 };
 
 export async function getCourtsData(field: string, date: string) {
-  const data = await fetch(
-    `https://alquilatucancha.com/api/v3/availability/sportclubs/${field}?date=${date}`,
-  ).then((res) => res.json() as Promise<FieldAvailability>);
+  const data = await fetch(`${API_BASE_URL}/availability/sportclubs/${field}?date=${date}`).then(
+    (res) => res.json() as Promise<FieldAvailability>,
+  );
 
   const availableTimes: Record<string, {name: string; slots: string[]}> = {};
 
@@ -76,7 +78,7 @@ export async function getCourtsData(field: string, date: string) {
       const slotStart = format({
         date: new Date(slot.start),
         format: "HH:mm",
-        tz: "America/Argentina/Buenos_Aires",
+        tz: TIMEZONE,
       });
 
       // Initialize the court if it doesn't exist

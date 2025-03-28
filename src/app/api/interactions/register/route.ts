@@ -1,5 +1,7 @@
 import {NextRequest, NextResponse} from "next/server";
 
+import {FIELDS} from "@/lib/constants";
+
 const commands = [
   {
     name: "reserva",
@@ -11,16 +13,7 @@ const commands = [
         description: "Selecciona el lugar",
         type: 3,
         required: true,
-        choices: [
-          {
-            name: "Castro",
-            value: "1061",
-          },
-          {
-            name: "Golazo",
-            value: "1625",
-          },
-        ],
+        choices: [FIELDS.CASTRO, FIELDS.GOLAZO],
       },
       {
         name: "fecha",
